@@ -21,7 +21,7 @@ contract WolfFactory {
     mapping (uint => address) public wolfToOwner;
     mapping (address => uint) ownerWolfCount;
 
-    function _createWolf (string memory _name, uint _dna) private {
+    function _createWolf (string memory _name, uint _dna) internal {
         wolves.push(Wolf(_name, _dna));
         uint id = wolves.length - 1;
         wolfToOwner[id] = msg.sender;
