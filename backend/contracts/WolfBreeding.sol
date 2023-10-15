@@ -16,17 +16,22 @@ contract WolfBreeding is WolfFactory {
   }
 
   function append(string memory _a, string memory _b, string memory _c, string memory _d,
-                  string memory _e, string memory _f, string memory _g, string memory _h,
-                  string memory _i, string memory _j, string memory _k, string memory _l, 
-                  string memory _m, string memory _o, string memory _p, string memory _q) internal pure returns (string memory) {
+                  string memory _e, string memory _f, string memory _g) internal pure returns (string memory) {
 
-    return string(abi.encodePacked(_a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _o, _p, _q));
+    return string(abi.encodePacked(_a, _b, _c, _d, _e, _f, _g));
 
   }
 
-  function generateRandomNumber() public view returns (uint256) {
-    uint256 randomNumber = uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender))) % 101;
-    return randomNumber;
+  function append(string memory _a, string memory _b, string memory _c) internal pure returns (string memory) {
+
+    return string(abi.encodePacked(_a, _b, _c));
+
+  }
+
+  function append(string memory _a, string memory _b) internal pure returns (string memory) {
+
+    return string(abi.encodePacked(_a, _b));
+
   }
 
   function generateRandomNumberForMutation() public view returns (uint256) {
@@ -55,7 +60,11 @@ contract WolfBreeding is WolfFactory {
       j /= 10;
     }
 
-    str = string(bstr);
+    if(_i < 10) {
+    str = append("0",string(bstr));
+    } else {
+      str = string(bstr);
+    }
   } 
 
   function string2uint(string memory s) public pure returns (uint) {
@@ -92,8 +101,12 @@ contract WolfBreeding is WolfFactory {
                substring(_ourWolfDna, 2, 4), substring(_partnerWolfDna, 2, 4), 
                substring(_ourWolfDna, 4, 6), substring(_partnerWolfDna, 4, 6));
 
+    string memory body = append(mainBody, hiddenBody1, hiddenBody2);
+
     string memory color1 = _random2Dna(substring(_ourWolfDna, 6, 8),substring(_partnerWolfDna, 6, 8));
     string memory color2 = _random2Dna(substring(_ourWolfDna, 8, 10),substring(_partnerWolfDna, 8, 10));
+    string memory color = append(color1, color2);
+
 
     string memory mainEye = _random6Dna(substring(_ourWolfDna, 10, 12), substring(_partnerWolfDna, 10, 12),
                substring(_ourWolfDna, 12, 14), substring(_partnerWolfDna, 12, 14), 
@@ -104,6 +117,7 @@ contract WolfBreeding is WolfFactory {
     string memory hiddenEye2 = _random6Dna(substring(_ourWolfDna, 10, 12), substring(_partnerWolfDna, 10, 12),
                substring(_ourWolfDna, 12, 14), substring(_partnerWolfDna, 12, 14), 
                substring(_ourWolfDna, 14, 16), substring(_partnerWolfDna, 14, 16));
+    string memory eye = append(mainEye, hiddenEye1, hiddenEye2);
 
     string memory colorEye = _random2Dna(substring(_ourWolfDna, 16, 18),substring(_partnerWolfDna, 16, 18));
 
@@ -116,6 +130,7 @@ contract WolfBreeding is WolfFactory {
     string memory hiddenEar2 = _random6Dna(substring(_ourWolfDna, 18, 20), substring(_partnerWolfDna, 18, 20),
                substring(_ourWolfDna, 20, 22), substring(_partnerWolfDna, 20, 22), 
                substring(_ourWolfDna, 22, 24), substring(_partnerWolfDna, 22, 24));
+    string memory ear = append(mainEar, hiddenEar1, hiddenEar2);
 
     string memory mainMouth = _random6Dna(substring(_ourWolfDna, 24, 26), substring(_partnerWolfDna, 24, 26),
                substring(_ourWolfDna, 26, 28), substring(_partnerWolfDna, 26, 28), 
@@ -126,20 +141,17 @@ contract WolfBreeding is WolfFactory {
     string memory hiddenMouth2 = _random6Dna(substring(_ourWolfDna, 24, 26), substring(_partnerWolfDna, 24, 26),
                substring(_ourWolfDna, 26, 28), substring(_partnerWolfDna, 26, 28), 
                substring(_ourWolfDna, 28, 30), substring(_partnerWolfDna, 28, 30));
+    string memory mouth = append(mainMouth, hiddenMouth1, hiddenMouth2);
 
-    string memory gen;
+    string memory genDna;
 
     if(string2uint(substring(_ourWolfDna, 30, 32)) < string2uint(substring(_partnerWolfDna, 30, 32))) {
-      gen = substring(_ourWolfDna, 30, 32);
+      genDna = substring(_ourWolfDna, 30, 32);
     } else {
-      substring(_partnerWolfDna, 30, 32);
+      genDna = substring(_partnerWolfDna, 30, 32);
     }
 
-    return append(mainBody, hiddenBody1, hiddenBody2,
-                  color1, color2, 
-                  mainEye, hiddenEye1, hiddenEye2, colorEye,
-                  mainEar, hiddenEar1, hiddenEar2, mainMouth,
-                  hiddenMouth1, hiddenMouth2, gen);
+    return append(body,color, eye, colorEye, ear, mouth, gen);
   }
 
   function _random6Dna(string memory _a, string memory _b, string memory _c, string memory _d, string memory _e, string memory _f) 
@@ -179,16 +191,31 @@ contract WolfBreeding is WolfFactory {
     _createWolf("NewWolf", newDna);
     _triggerCooldown(myWolf);
   }
-  
-  function _generateRandomDna(string memory _str) private view returns (uint) {
-        uint rand = uint(keccak256(abi.encodePacked(_str)));
-        return rand % dnaModulus;
-    }
+    
+  function generateRandomWolf (string memory _name) external {
+    require(ownerWolfCount[msg.sender] == 0);
+      string memory body = append(uint2str(generateRandomNumber()%bodyCnt+1),
+                                  uint2str(generateRandomNumber()%bodyCnt+1),
+                                  uint2str(generateRandomNumber()%bodyCnt+1));
 
-    function createRandomWolf(string memory _name) public {
-        require(ownerWolfCount[msg.sender] == 0);
-        uint randDna = _generateRandomDna(_name);
-    }
+      string memory color = append(uint2str(generateRandomNumber()%11),
+                                    uint2str(generateRandomNumber()%11));
 
+      string memory eye = append(uint2str(generateRandomNumber()%eyeCnt+1),
+                            uint2str(generateRandomNumber()%eyeCnt+1),
+                            uint2str(generateRandomNumber()%eyeCnt+1));
+
+      string memory colorEye = uint2str(generateRandomNumber()%11);
+
+      string memory ear = append(uint2str(generateRandomNumber()%earCnt+1),
+                                  uint2str(generateRandomNumber()%earCnt+1),
+                                  uint2str(generateRandomNumber()%earCnt+1));
+      string memory mouth = append(uint2str(generateRandomNumber()%mouthCnt+1),
+                                    uint2str(generateRandomNumber()%mouthCnt+1),
+                                    uint2str(generateRandomNumber()%mouthCnt+1));
+        
+      string memory randomDna = append(body,color, eye, colorEye, ear, mouth, gen);
+      _createWolf(_name, randomDna);
+    }
 
 }

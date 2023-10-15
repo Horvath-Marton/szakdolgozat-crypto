@@ -16,7 +16,7 @@ contract WolfOwnership is WolfHelper, ERC721 {
     return wolfToOwner[_tokenId];
   }
 
-    function _transfer(address _from, address _to, uint256 _tokenId) private {
+  function _transfer(address _from, address _to, uint256 _tokenId) private {
     ownerWolfCount[_to]++;
     ownerWolfCount[_from]--;
     wolfToOwner[_tokenId] = _to;

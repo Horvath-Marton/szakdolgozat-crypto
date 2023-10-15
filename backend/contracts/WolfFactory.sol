@@ -32,6 +32,15 @@ contract WolfFactory is Ownable {
     mapping (uint => address) public wolfToOwner;
     mapping (address => uint) ownerWolfCount;
 
+    
+
+    function generateRandomNumber() public view returns (uint256) {
+        uint256 randomNumber = uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender))) % 101;
+        return randomNumber;
+    }
+
+    
+
     function _createWolf (string memory _name, string memory _dna) internal {
         wolves.push(Wolf(_name, _dna, uint32(block.timestamp + cooldownTime), false, false));
         uint id = wolves.length - 1;
@@ -39,7 +48,8 @@ contract WolfFactory is Ownable {
         ownerWolfCount[msg.sender]++;
         emit NewWolf(id, _name, _dna);
     }
-    
+
+
 
     function setGenHigher(uint _body, uint _eye, uint _ear, uint _mouth, string memory _gen) external onlyOwner {
         bodyCnt = _body;

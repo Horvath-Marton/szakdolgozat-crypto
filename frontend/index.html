@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>CryptoWolfPack</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="cryptowolfpack_ABI.js"></script>
+  </head>
+  <body>
+    <div id="wolves"></div>
+        <!--<script type="module" src="index.js"></script> -->
+    <button id="btMint">Mint</button>
+    <script>
+      const contractABI = cryptoWolfPackABI;
+      const contractAddress = '0xe75daB50163bfD12C2e9C51ec068e0F39C4c11d5';
+      let cryptoWolfPack;
+      let currentAccount;
+
+      function startApp() { 
+              
+        const web3 = new Web3(window.ethereum);
+        cryptoWolfPack = new web3.eth.Contract(contractABI, contractAddress);
+        ethereum.request({ method: 'eth_requestAccounts' })
+          .then(accounts => {
+            currentAccount = accounts[0];
+            console.log(currentAccount);
+            })
+          .catch(error => { });  
+        console.log(cryptoWolfPack);
+        //console.log(getWolvesByOwner(currentAccount));
+        checkAccountChange; // nem működik
+        //createRandomWolf('001');
+        document.getElementById("btMint").onclick=async() => { await createRandomWolf("Krajcsi"); }
+        }
+          
+          
+      //nem működik
+      checkAccountChange;  
+      //nem működik
+      function checkAccountChange() {
+        if (accounts[0] !== currentAccount) {
+          currentAccount = accounts[0];
+          console.log(`Selected account: ${currentAccount}`);
+        } 
+        setTimeout(checkAccountChange, 1000);  
+      };
+      
+      function getWolfDetails(id) {
+        return cryptoWolfPack.methods.wolves(id).call();
+      }
+
+      function wolfToOwner(id) {
+        return cryptoWolfPack.methods.wolfToOwner(id).call();
+        }
+
+      function getWolvesByOwner(owner) {
+        return cryptoWolfPack.methods.getWolvesByOwner(owner).call();
+      }
+
+      async function getCurrentAccountsWolwes() {
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+        const currentAccount = accounts[0];
+
+        return cryptoWolfPack.methods.getWolvesByOwner(currentAccount).call();
+      }
+          
+      async function createRandomWolf(name) {
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+        const currentAccount = accounts[0];
+
+        return cryptoWolfPack.methods.generateRandomWolf(name)
+          .send({ from: currentAccount })
+          .on("receipt", function(receipt) {
+            console.log("succes");
+          })
+          .on("error", function(error) { console.log("error"); });
+      }
+
+      window.addEventListener('load', function(){
+        if (typeof window.ethereum !== 'undefined') { 
+          console.log('Metamask is installed!');
+        } else {
+          console.log('Metamask is not installed!');
+        } 
+            
+        startApp();
+      })
+
+
+    </script>
+  </body>
+</html>  
