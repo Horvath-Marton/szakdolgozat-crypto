@@ -11,6 +11,7 @@ contract WolfFactory is Ownable {
     uint dnaDigits = 32; 
     uint dnaModulus = 10 ** dnaDigits;
     uint cooldownTime = 1 days;
+    uint randNonce = 0;
 
     uint bodyCnt = 7;
     uint eyeCnt = 7;
@@ -34,8 +35,9 @@ contract WolfFactory is Ownable {
 
     
 
-    function generateRandomNumber() public view returns (uint256) {
-        uint256 randomNumber = uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender))) % 101;
+    function generateRandomNumber() internal returns (uint256) {
+        randNonce++;
+        uint256 randomNumber = uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender, randNonce))) % 101;
         return randomNumber;
     }
 
